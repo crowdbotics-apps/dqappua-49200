@@ -16,6 +16,7 @@
     "@babel/polyfill": "^7.12.1",
     "@modules/onboarding": "file:./modules/onboarding/",
     "@modules/typeform-webhook": "file:./modules/typeform-webhook/",
+    "@modules/user-profile": "file:./modules/user-profile/",
     "@react-native-masked-view/masked-view": "^0.2.9",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/stack": "^6.3.16",
