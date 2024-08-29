@@ -1,16 +1,12 @@
 import { StyleSheet } from "react-native";
-
 const BASE_URL = "http://localhost:8000";
-
 const REDIRECT_URI = "https://www.crowdbotics.com/";
 const CLIENT_ID = "";
 const CLIENT_SECRET = "";
 const WEBHOOK_URL = `${BASE_URL}/webhook/`; // http://localhost:8000/webhook/
+
 const WEBHOOK_TAG = "cb-module";
-
-const userAgent =
-  "Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/98.0.4758.87 Mobile Safari/537.36";
-
+const userAgent = "Mozilla/5.0 (Linux; Android) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/98.0.4758.87 Mobile Safari/537.36";
 const styles = StyleSheet.create({
   formListContainer: {
     padding: 10,
@@ -98,7 +94,6 @@ const styles = StyleSheet.create({
     fontWeight: "500"
   }
 });
-
 export default {
   styles: styles,
   userAgent: userAgent,

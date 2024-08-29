@@ -1,17 +1,16 @@
-import options from "../options";
-// @ts-ignore
+import options from "../options"; // @ts-ignore
+
 import { getGlobalOptions } from "@options";
 import axios from "axios";
-
 const global = getGlobalOptions();
 const BASE_URL = global.url;
 const TYPEFORM_BASE_URL = "https://api.typeform.com";
-
 const authAPI = axios.create({
   baseURL: BASE_URL,
-  headers: { "Content-Type": "application/json" }
+  headers: {
+    "Content-Type": "application/json"
+  }
 });
-
 const typeformAPI = axios.create({
   baseURL: TYPEFORM_BASE_URL
 });
