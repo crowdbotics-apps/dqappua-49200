@@ -1,50 +1,160 @@
-import React, { useState, useEffect } from "react";
-import { Text, StyleSheet, View, SafeAreaView, Image } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, Button, SafeAreaView, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { lazyfetch } from "2lazy2rest";
 
-const AboutTheAppScreen = params => {
-  const [ImageSource, setImageSource] = useState();
-  const [text1, setText1] = useState("");
-  const [text2, setText2] = useState("");
-  useEffect(() => {
-    setText1("I understand that uses my dolor sit amet, consectetur adipiscing elit. Viverra auctor laoreet sodales congue sit volutpat quisque. Mattis nisl in convallis sed et. Est turpis aliquam est, ut mattis nisi, amet feugiat. Aliquet odio consequat, nisl mauris ullamcorper malesuada velit sem dolor. Dui morbi porttitor integer felis, pellentesque quam. Et accumsan justo, massa tincidunt arcu fermentum est. Sed nibh id vel, diam ut feugiat nec, placerat mauris. Neque lorem netus lacinia elit est libero sed. Commodo viverra et, neque augue augue mauris, nunc ut nec.");
-    setText2("I understand that uses my dolor sit amet, consectetur adipiscing elit. Viverra auctor laoreet sodales congue sit volutpat quisque. Mattis nisl in convallis sed et. Est turpis aliquam est, ut mattis nisi, amet feugiat. Aliquet odio consequat, nisl mauris ullamcorper malesuada velit sem dolor. Dui morbi porttitor integer felis, pellentesque quam. Et accumsan justo, massa tincidunt arcu fermentum est. Sed nibh id vel, diam ut feugiat nec, placerat mauris. Neque lorem netus lacinia elit est libero sed. Commodo viverra et, neque augue augue mauris, nunc ut nec.");
-    setImageSource(require("./assets/Frame21.png"));
-  }, []);
+const SurveyScreen = () => {
+  const [currentScreen, setCurrentScreen] = useState("personalInfo");
+  const [name, setName] = useState("");
+  const [birthYear, setBirthYear] = useState("");
+  const [answers, setAnswers] = useState({});
+
+  const goToTestSelection = () => setCurrentScreen("testSelection");
+
+  const goToTest1 = () => setCurrentScreen("test1");
+
+  const submitTest1 = async () => {
+    await createAndSavePDF();
+    setCurrentScreen("finalMessage");
+  };
+
+  const handleAnswer = (question, answer) => {
+    setAnswers(prev => ({ ...prev,
+      [question]: answer
+    }));
+  };
+
+  const createAndSavePDF = async () => {
+    const content = `
+      Результати тесту "Адаптивність"\n
+      ПІБ: ${name}\n
+      Рік народження: ${birthYear}\n
+      Результати:\n
+      1. Буває, що я серджусь: ${answers.q1 || "Невідомо"}\n
+      2. Зазвичай вранці я прокидаюся свіжим і відпочившим: ${answers.q2 || "Невідомо"}\n
+      3. Зараз я приблизно так само працездатний, як завжди: ${answers.q3 || "Невідомо"}\n
+      <!-- Додайте інші питання аналогічно -->
+    `;
+    const response = await lazyfetch({
+      url: "https://your-api-endpoint-to-create-pdf.com/create-pdf",
+      method: "POST",
+      data: {
+        content: content
+      },
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (response.status === 200) {
+      const pdfPath = `${RNFS.DocumentDirectoryPath}/test_results.pdf`; // Сохранение PDF на устройстве
+
+      await RNFS.writeFile(pdfPath, response.data, "base64");
+      Alert.alert("PDF збережено", `Файл збережено на шляху: ${pdfPath}`);
+    } else {
+      Alert.alert("Помилка", "Не вдалося створити PDF-файл");
+    }
+  };
+
   return <SafeAreaView style={styles.container}>
-      <View style={styles.imgScroller}>
-        <Image source={ImageSource} />
-        <Image style={styles.threeDots} source={require("./assets/3Dots.png")} />
-      </View>
-      <View style={styles.textContainer}>
-        <Text style={styles.text}>{text1}</Text>
-        <Text style={styles.text}>{text2}</Text>
-      </View>
+      {currentScreen === "personalInfo" && <View style={styles.screen}>
+          <Text style={styles.header}>Опитування</Text>
+          <Text style={styles.label}>ПІБ:</Text>
+          <TextInput style={styles.input} onChangeText={setName} value={name} placeholder="Ваше ПІБ" />
+          <Text style={styles.label}>Рік народження:</Text>
+          <TextInput style={styles.input} onChangeText={setBirthYear} value={birthYear} placeholder="Рік народження" keyboardType="numeric" />
+          <Button title="Продовжити" onPress={goToTestSelection} />
+        </View>}
+      {currentScreen === "testSelection" && <View style={styles.screen}>
+          <Text style={styles.header}>Оберіть тест</Text>
+          <Button title="Адаптивність" onPress={goToTest1} />
+          <Button title="Тест 2" disabled />
+        </View>}
+      {currentScreen === "test1" && <View style={styles.screen}>
+          <Text style={styles.header}>Адаптивність</Text>
+
+          {
+        /* Приклади питань та відповідей */
+      }
+          <Text style={styles.question}>1. Буває, що я серджусь.</Text>
+          <TouchableOpacity onPress={() => handleAnswer("q1", "так")}>
+            <Text style={styles.answer}>a) так</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleAnswer("q1", "ні")}>
+            <Text style={styles.answer}>б) ні</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.question}>
+            2. Зазвичай вранці я прокидаюся свіжим і відпочившим.
+          </Text>
+          <TouchableOpacity onPress={() => handleAnswer("q2", "так")}>
+            <Text style={styles.answer}>a) так</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleAnswer("q2", "ні")}>
+            <Text style={styles.answer}>б) ні</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.question}>
+            3. Зараз я приблизно так само працездатний, як завжди.
+          </Text>
+          <TouchableOpacity onPress={() => handleAnswer("q3", "так")}>
+            <Text style={styles.answer}>a) так</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleAnswer("q3", "ні")}>
+            <Text style={styles.answer}>б) ні</Text>
+          </TouchableOpacity>
+
+          {
+        /* Додайте решту питань аналогічно */
+      }
+          <Text onPress={submitTest1} style={styles.buttonText}>
+            Завершити
+          </Text>
+        </View>}
+      {currentScreen === "finalMessage" && <View style={styles.screen}>
+          <Text style={styles.header}>Дякуємо!</Text>
+          <Text>Дані збережено.</Text>
+        </View>}
     </SafeAreaView>;
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start",
-    backgroundColor: "#fff"
-  },
-  imgScroller: {
-    flexDirection: "column",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginVertical: 20
+    justifyContent: "center",
+    padding: 20
   },
-  threeDots: {
-    marginTop: 20
+  screen: {
+    alignItems: "center",
+    width: "100%"
   },
-  textContainer: {
-    paddingHorizontal: 20
+  header: {
+    fontSize: 24,
+    marginBottom: 20
   },
-  text: {
-    fontSize: 14,
-    textAlign: "justify",
-    lineHeight: 18,
-    marginVertical: 10
+  label: {
+    alignSelf: "flex-start",
+    marginLeft: 10
+  },
+  input: {
+    height: 40,
+    width: "100%",
+    margin: 12,
+    borderWidth: 1,
+    padding: 10
+  },
+  buttonText: {
+    marginTop: 20,
+    color: "blue"
+  },
+  question: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "bold"
+  },
+  answer: {
+    fontSize: 16,
+    padding: 5
   }
 });
-export default AboutTheAppScreen;
+export default SurveyScreen;
